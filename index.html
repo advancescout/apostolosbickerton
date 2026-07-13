@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="ultramodern">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Apostolos Bickerton — Alphablock A</title>
+<meta name="description" content="Apostolos Bickerton — content creator, Alphablock A. Logo countdowns, shorts, and more." />
+<meta property="og:title" content="Apostolos Bickerton — Alphablock A" />
+<meta property="og:description" content="Content creator. Logo countdowns, shorts & experiments." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://apostolosbickerton.com/" />
+<meta property="og:image" content="https://apostolosbickerton.com/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Apostolos Bickerton — Alphablock A, content creator" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Apostolos Bickerton — Alphablock A" />
+<meta name="twitter:description" content="Content creator. Logo countdowns, shorts & experiments." />
+<meta name="twitter:image" content="https://apostolosbickerton.com/og.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Audiowide&family=Bangers&family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&family=Permanent+Marker&family=Space+Grotesk:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/themes.css" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23111'/%3E%3Ctext x='50' y='70' font-size='62' text-anchor='middle' fill='%23fff' font-family='Arial' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+<!-- ===== Burger menu ===== -->
+<button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="drawer">
+  <span></span><span></span><span></span>
+</button>
+
+<nav class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer__scrim" id="drawerScrim"></div>
+  <div class="drawer__panel" role="menu">
+    <div class="drawer__head">
+      <span class="drawer__brand">Apostolos&nbsp;B.</span>
+      <button class="drawer__close" id="drawerClose" aria-label="Close menu">✕</button>
+    </div>
+    <a class="drawer__link" role="menuitem" href="#home" data-nav>Home</a>
+    <a class="drawer__link" role="menuitem" href="#video" data-nav>Latest Video</a>
+    <a class="drawer__link" role="menuitem" href="#projects" data-nav>Projects</a>
+    <div class="drawer__sep">Projects</div>
+    <a class="drawer__link drawer__link--ext" role="menuitem" href="/heatwave/" target="_blank" rel="noopener">Heatwave Portal <i>↗</i></a>
+    <a class="drawer__link drawer__link--ext" role="menuitem" href="https://alphaclimate.xyz" target="_blank" rel="noopener">Köppen Climate Explorer <i>↗</i></a>
+    <div class="drawer__sep">Elsewhere</div>
+    <a class="drawer__link drawer__link--ext" role="menuitem" href="https://www.youtube.com/@AlphablockATheContentCreator" target="_blank" rel="noopener">YouTube <i>↗</i></a>
+  </div>
+</nav>
+
+<!-- ===== Per-theme ambient FX layers (CSS shows/hides per theme) ===== -->
+<div class="fx fx-grid" aria-hidden="true"></div>
+<div class="fx fx-sun" aria-hidden="true"></div>
+<div class="fx fx-scanlines" aria-hidden="true"></div>
+<div class="fx fx-grain" aria-hidden="true"></div>
+<div class="fx fx-vignette" aria-hidden="true"></div>
+<div class="fx fx-stickerbomb" aria-hidden="true"></div>
+<div class="fx fx-mesh" aria-hidden="true"></div>
+
+<!-- ===== Theme Switcher ===== -->
+<div class="switcher" role="group" aria-label="Theme selector">
+  <span class="switcher__label">Theme</span>
+  <div class="switcher__btns">
+    <button class="chip" data-set="ultramodern" aria-pressed="true"><span class="chip__dot"></span>Ultramodern</button>
+    <button class="chip" data-set="win98" aria-pressed="false"><span class="chip__dot"></span>Windows 98</button>
+    <button class="chip" data-set="seventies" aria-pressed="false"><span class="chip__dot"></span>70s Idents</button>
+    <button class="chip" data-set="synth80s" aria-pressed="false"><span class="chip__dot"></span>Synth 80s</button>
+    <button class="chip" data-set="skate90s" aria-pressed="false"><span class="chip__dot"></span>Skate 90s</button>
+  </div>
+</div>
+
+<!-- ===== Windows 98 desktop chrome (only shown in win98 theme) ===== -->
+<div class="win98-taskbar" aria-hidden="true">
+  <button class="win98-start"><span class="win98-start__logo"></span>Start</button>
+  <div class="win98-tasks"><span class="win98-task active">Apostolos.exe</span></div>
+  <div class="win98-tray"><span class="win98-clock" id="win98Clock">12:00 PM</span></div>
+</div>
+
+<main class="stage">
+
+  <!-- 70s "presented in" pre-title curtain -->
+  <div class="ident-card" aria-hidden="true">
+    <div class="ident-card__inner">
+      <div class="ident-card__star">★</div>
+      <div class="ident-card__line1">An Alphablock&nbsp;A Presentation</div>
+      <div class="ident-card__line2">In Glorious Widescreen</div>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero panel" id="home">
+    <div class="hero__titlebar"><span class="hero__titlebar-name">Apostolos.exe</span><span class="hero__titlebar-ctrls"><i>_</i><i>▢</i><i>✕</i></span></div>
+    <div class="hero__grid">
+      <figure class="portrait">
+        <div class="portrait__frame">
+          <img src="assets/apostolos.jpg" alt="Apostolos Bickerton" id="portrait"
+               onerror="this.style.display='none';this.parentNode.classList.add('portrait--placeholder')" />
+          <div class="portrait__placeholder-art" aria-hidden="true">A</div>
+          <div class="portrait__shine" aria-hidden="true"></div>
+        </div>
+        <figcaption class="portrait__cap">Apostolos B.</figcaption>
+      </figure>
+
+      <div class="hero__text">
+        <p class="eyebrow"><span class="eyebrow__live">●</span> Content Creator</p>
+        <h1 class="name">Apostolos<br/>Bickerton</h1>
+        <p class="alias">a.k.a. <strong>Alphablock&nbsp;A</strong></p>
+        <p class="bio">Logo countdowns, shorts, experiments and the occasional cinematic curveball — published from the desk, the deck, and everywhere in between.</p>
+        <div class="cta">
+          <a class="btn btn--primary" href="https://www.youtube.com/@AlphablockATheContentCreator" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M23 12s0-3.5-.45-5.18a2.78 2.78 0 0 0-1.95-1.96C18.88 4.4 12 4.4 12 4.4s-6.88 0-8.6.46A2.78 2.78 0 0 0 1.45 6.82C1 8.5 1 12 1 12s0 3.5.45 5.18a2.78 2.78 0 0 0 1.95 1.96c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.95-1.96C23 15.5 23 12 23 12ZM9.75 15.5v-7L15.5 12l-5.75 3.5Z"/></svg>
+            Subscribe
+          </a>
+          <a class="btn btn--ghost" href="#video">Watch latest ↓</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== LATEST VIDEO ===== -->
+  <section class="video panel" id="video">
+    <div class="hero__titlebar"><span class="hero__titlebar-name">Media Player — Now Playing</span><span class="hero__titlebar-ctrls"><i>_</i><i>▢</i><i>✕</i></span></div>
+    <div class="section-head">
+      <h2 class="sec-title">Latest Video</h2>
+      <span class="sec-sub">Straight from the channel — always the newest upload.</span>
+    </div>
+    <div class="video-wrap">
+      <iframe
+        id="ytFrame"
+        src="https://www.youtube-nocookie.com/embed/videoseries?list=UUYhvfZTR8hAnhDhnd7vOpLA&rel=0"
+        title="Latest video by Alphablock A"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+    </div>
+  </section>
+
+  <!-- ===== PROJECTS ===== -->
+  <section class="projects panel" id="projects">
+    <div class="hero__titlebar"><span class="hero__titlebar-name">Projects</span><span class="hero__titlebar-ctrls"><i>_</i><i>▢</i><i>✕</i></span></div>
+    <div class="section-head">
+      <h2 class="sec-title">Projects</h2>
+      <span class="sec-sub">Things built along the way.</span>
+    </div>
+    <div class="projects__grid">
+      <a class="project-card" href="https://alphaclimate.xyz" target="_blank" rel="noopener">
+        <div class="project-card__thumb">
+          <img src="assets/koppen-preview.jpg" alt="Köppen Climate Explorer — interactive 3D globe of the world's climate zones" loading="lazy" />
+          <span class="project-card__badge"><span class="project-card__badge-dot"></span>Live site</span>
+        </div>
+        <div class="project-card__body">
+          <h3 class="project-card__title">Köppen Climate Explorer</h3>
+          <p class="project-card__desc">An interactive 3D map of the world's climate zones — past, present and projected futures. Built this one together.</p>
+          <span class="project-card__link">alphaclimate.xyz →</span>
+        </div>
+      </a>
+      <a class="project-card project-card--heatwave" href="/heatwave/" target="_blank" rel="noopener">
+        <div class="project-card__thumb">
+          <img src="assets/heatwave-preview.jpg" alt="Heatwave Portal — live planetary heat scanner ranking the hottest places on Earth" loading="lazy" />
+          <span class="project-card__badge"><span class="project-card__badge-dot"></span>Live site</span>
+        </div>
+        <div class="project-card__body">
+          <h3 class="project-card__title">Heatwave Portal</h3>
+          <p class="project-card__desc">A live planetary heat scanner — ranks the hottest places on Earth in real time, with a 3D globe and live cams.</p>
+          <span class="project-card__link">Open portal →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <span>© <span id="year">2026</span> Apostolos Bickerton</span>
+    <span class="site-footer__sep">·</span>
+    <span>Alphablock A</span>
+    <span class="site-footer__sep">·</span>
+    <a href="https://www.youtube.com/@AlphablockATheContentCreator" target="_blank" rel="noopener">YouTube</a>
+  </footer>
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>

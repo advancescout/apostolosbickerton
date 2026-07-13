@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heatwave Portal — Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --glow: #3b425299; --glow-soft: #3b425233; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #07090d; color: #c8cdd6;
+    font-family: 'Space Mono', ui-monospace, Menlo, monospace;
+    padding: 24px 16px 48px; min-height: 100vh;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  .eyebrow { font-size: 11px; letter-spacing: .25em; color: #5d6572; }
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+    font-size: 44px; line-height: 1; margin-top: 6px; color: #eef1f6;
+    text-transform: uppercase; letter-spacing: .02em;
+  }
+  .scanline { font-size: 10px; color: #5d6572; margin-top: 8px; letter-spacing: .1em; }
+  .scanline .live { color: #ef4444; font-weight: 700; }
+  .rankbadge {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .2em;
+    padding: 4px 12px; border: 1px solid; border-radius: 999px; margin-bottom: 14px;
+  }
+  .portal-row { display: flex; flex-direction: column; align-items: center; margin: 24px 0 8px; }
+  .portal {
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 3px solid #3b4252; position: relative;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    animation: pulse 3.2s ease-in-out infinite;
+    transition: border-color 1s ease;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 60px var(--glow), 0 0 140px var(--glow-soft), inset 0 0 80px var(--glow-soft); }
+    50%     { box-shadow: 0 0 90px var(--glow), 0 0 200px var(--glow-soft), inset 0 0 110px var(--glow-soft); }
+  }
+  .haze {
+    position: absolute; inset: 20px; border-radius: 50%;
+    filter: blur(6px); pointer-events: none; display: none;
+    animation: haze 2.4s ease-in-out infinite;
+  }
+  @keyframes haze {
+    0%,100% { transform: scaleY(1); opacity: .55; }
+    50%     { transform: scaleY(1.06) translateY(-4px); opacity: .85; }
+  }
+  @media (prefers-reduced-motion: reduce) { .portal, .haze { animation: none !important; } }
+  .bigtemp { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:84px; line-height:1; color:#fff; }
+  .heatlabel { font-size:12px; letter-spacing:.3em; font-weight:700; margin-top:6px; }
+  .daynight { font-size:11px; color:#8b93a1; margin-top:10px; }
+  .locname { font-family:'Barlow Condensed',sans-serif; font-weight:600; font-size:24px; color:#eef1f6; text-align:center; }
+  .coords { font-size:11px; color:#5d6572; letter-spacing:.15em; text-align:center; margin-bottom:14px; }
+  .cyclebar { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:20px; }
+  .cyclebar button {
+    background:#0d1117; border:1px solid #2a3342; color:#c8cdd6; border-radius:6px;
+    padding:8px 14px; font-family:inherit; font-size:11px; letter-spacing:.15em; cursor:pointer;
+  }
+  .cyclebar button.on { background:#facc15; color:#0b0e14; border-color:#facc15; font-weight:700; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:26px; }
+  .stat { background:#0d1117; border:1px solid #1c2330; border-radius:8px; padding:10px 8px; text-align:center; }
+  .stat .l { font-size:9px; letter-spacing:.2em; color:#5d6572; }
+  .stat .v { font-size:18px; font-weight:700; color:#eef1f6; margin-top:3px; }
+  .cam { margin-bottom: 28px; }
+  .cam-frame { width:100%; aspect-ratio:16/9; border:1px solid #1c2330; border-radius:10px; overflow:hidden; background:#0d1117; }
+  .cam-frame iframe { width:100%; height:100%; border:0; display:block; }
+  .cam-fallback {
+    width:100%; aspect-ratio:16/9; border:1px dashed #2a3342; border-radius:10px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; text-align:center; padding:16px;
+  }
+  .cam-fallback p { font-size:12px; color:#8b93a1; }
+  .cam-fallback a { background:#facc15; color:#0b0e14; text-decoration:none; font-weight:700; font-size:13px; padding:10px 16px; border-radius:6px; }
+  .panel { background:#0d1117; border:1px solid #1c2330; border-radius:10px; padding:14px; margin-bottom:28px; }
+  .panel .l { font-size:10px; letter-spacing:.25em; color:#5d6572; margin-bottom:10px; }
+  .searchbox { position:relative; margin-bottom:10px; }
+  .searchbox input {
+    width:100%; background:#07090d; border:1px solid #2a3342; border-radius:6px;
+    color:#eef1f6; padding:10px 12px; font-family:inherit; font-size:14px;
+  }
+  .suggest {
+    position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:10;
+    background:#0d1117; border:1px solid #2a3342; border-radius:8px;
+    overflow:hidden; display:none; box-shadow:0 12px 30px rgba(0,0,0,.6);
+  }
+  .suggest .opt { padding:10px 12px; cursor:pointer; border-bottom:1px solid #141a24; }
+  .suggest .opt:last-child { border-bottom:none; }
+  .suggest .opt:hover, .suggest .opt.hl { background:#161d29; }
+  .suggest .opt .pn { font-size:13px; color:#eef1f6; }
+  .suggest .opt .pc { font-size:10px; color:#5d6572; letter-spacing:.1em; }
+  .ordiv { display:flex; align-items:center; gap:10px; margin:12px 0; }
+  .ordiv::before, .ordiv::after { content:""; flex:1; height:1px; background:#1c2330; }
+  .ordiv span { font-size:9px; letter-spacing:.25em; color:#3a4250; }
+  .dial { display:flex; gap:8px; }
+  .dial input { flex:1; min-width:0; background:#07090d; border:1px solid #2a3342; border-radius:6px; color:#eef1f6; padding:10px 12px; font-family:inherit; font-size:14px; }
+  .dial button { background:#facc15; color:#0b0e14; border:none; border-radius:6px; padding:10px 16px; font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; }
+  input:focus-visible, button:focus-visible, .hotrow:focus-visible { outline:2px solid #facc15; }
+  .err { background:#1a0e0e; border:1px solid #7f1d1d; border-radius:8px; padding:10px 14px; font-size:12px; color:#fca5a5; margin-bottom:20px; display:none; }
+  .hotrow { display:flex; align-items:center; gap:12px; padding:11px 10px; border-bottom:1px solid #141a24; border-radius:6px; cursor:pointer; }
+  .hotrow:hover { background:#11151c; }
+  .hotrow.active { background:#161207; border-left:3px solid #facc15; }
+  .hotrow .rank { width:22px; font-size:12px; color:#5d6572; }
+  .hotrow .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .hotrow .info { flex:1; min-width:0; }
+  .hotrow .nm { font-size:13px; color:#eef1f6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hotrow .sub { font-size:10px; color:#5d6572; }
+  .hotrow .tmp { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:24px; }
+  .camtag { font-size:9px; letter-spacing:.15em; color:#facc15; }
+  footer { font-size:10px; color:#3a4250; margin-top:26px; text-align:center; }
+  /* ── Segmented control ── */
+  .seg {
+    display:flex; background:#0d1117; border:1px solid #2a3342; border-radius:10px;
+    padding:4px; gap:4px; margin:18px 0 6px;
+  }
+  .seg button {
+    flex:1; background:transparent; border:none; color:#8b93a1; border-radius:7px;
+    padding:10px 0; font-family:inherit; font-size:12px; letter-spacing:.2em;
+    font-weight:700; cursor:pointer;
+  }
+  .seg button.on { background:#facc15; color:#0b0e14; }
+  /* ── Globe view ── */
+  #globeview { display:none; }
+  #cesiumContainer {
+    width:100%; height:64vh; min-height:380px; border:1px solid #1c2330;
+    border-radius:12px; overflow:hidden; background:#000; position:relative;
+  }
+  #cesiumContainer .cesium-viewer-bottom { font-size:9px; opacity:.6; }
+  .globecard {
+    display:none; margin-top:12px; background:#0d1117; border:1px solid #2a3342;
+    border-radius:10px; padding:14px; align-items:center; gap:14px;
+  }
+  .globecard .gtemp { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:40px; line-height:1; }
+  .globecard .ginfo { flex:1; min-width:0; }
+  .globecard .gnm { font-size:14px; color:#eef1f6; }
+  .globecard .gsub { font-size:10px; color:#5d6572; letter-spacing:.1em; margin-top:2px; }
+  .globecard button {
+    background:#facc15; color:#0b0e14; border:none; border-radius:6px;
+    padding:10px 14px; font-family:inherit; font-weight:700; font-size:11px;
+    letter-spacing:.1em; cursor:pointer; white-space:nowrap;
+  }
+  .globehint { font-size:10px; color:#5d6572; margin-top:10px; text-align:center; letter-spacing:.1em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">LIVE PLANETARY HEAT SCANNER</div>
+    <h1>Heatwave Portal</h1>
+    <div class="scanline" id="scanline"><span class="live">● SCANNING</span> 50 EXTREME-HEAT SITES WORLDWIDE…</div>
+  </header>
+
+  <div class="seg" role="tablist" aria-label="View mode">
+    <button id="segportal" class="on" role="tab" aria-selected="true">◉ PORTAL</button>
+    <button id="segglobe" role="tab" aria-selected="false">🌍 GLOBE</button>
+  </div>
+
+  <div id="portalview">
+
+  <div class="portal-row">
+    <div class="rankbadge" id="rankbadge" style="visibility:hidden">#1 HOTTEST ON EARTH</div>
+    <div class="portal" id="portal">
+      <div class="haze" id="haze"></div>
+      <div class="bigtemp" id="bigtemp">--</div>
+      <div class="heatlabel" id="heatlabel">SCANNING…</div>
+      <div class="daynight" id="daynight"></div>
+    </div>
+  </div>
+
+  <div class="locname" id="locname">&nbsp;</div>
+  <div class="coords" id="coords">&nbsp;</div>
+
+  <div class="cyclebar">
+    <button id="autobtn" class="on" aria-pressed="true">▶ AUTO-PATROL TOP 5</button>
+    <button id="nextbtn">NEXT ›</button>
+  </div>
+
+  <div class="stats" id="stats" style="visibility:hidden">
+    <div class="stat"><div class="l">FEELS LIKE</div><div class="v" id="feels">--</div></div>
+    <div class="stat"><div class="l">HUMIDITY</div><div class="v" id="humidity">--</div></div>
+    <div class="stat"><div class="l">WIND</div><div class="v" id="wind">--</div></div>
+  </div>
+
+  <div class="cam">
+    <div class="eyebrow" style="margin-bottom:10px">LIVE CAM — LOOK THROUGH THE PORTAL</div>
+    <div id="camslot"></div>
+  </div>
+
+  <div class="err" id="err"></div>
+
+  <div class="eyebrow" style="margin-bottom:10px">GLOBAL HEAT RANKING — RIGHT NOW</div>
+  <div id="board"><div style="font-size:12px;color:#5d6572;padding:14px 0">Scanning the planet…</div></div>
+
+  <div class="panel" style="margin-top:28px">
+    <div class="l">MANUAL PORTAL — SEARCH ANY PLACE</div>
+    <div class="searchbox">
+      <input id="placeq" placeholder="Type a place… e.g. Jacobabad" autocomplete="off"
+             aria-label="Search for a place" role="combobox" aria-expanded="false" aria-controls="suggest">
+      <div class="suggest" id="suggest" role="listbox"></div>
+    </div>
+    <div class="ordiv"><span>OR DIAL COORDINATES</span></div>
+    <div class="dial">
+      <input id="lat" placeholder="Latitude" inputmode="decimal" aria-label="Latitude">
+      <input id="lon" placeholder="Longitude" inputmode="decimal" aria-label="Longitude">
+      <button id="go">GO</button>
+    </div>
+  </div>
+
+  </div><!-- /portalview -->
+
+  <div id="globeview">
+    <div id="cesiumContainer"></div>
+    <div class="globecard" id="globecard">
+      <div class="gtemp" id="gtemp">--°</div>
+      <div class="ginfo">
+        <div class="gnm" id="gnm"></div>
+        <div class="gsub" id="gsub"></div>
+      </div>
+      <button id="gopen">OPEN PORTAL HERE →</button>
+    </div>
+    <div class="globehint">DRAG TO SPIN · SCROLL / PINCH TO ZOOM · TAP A HEAT MARKER</div>
+  </div>
+
+  <footer>Live data: Open-Meteo · cams: YouTube Live · globe: CesiumJS + Esri World Imagery · °C · rescans every 10 min</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// THE SCAN LIST: ~50 of Earth's extreme-heat candidate sites,
+// both hemispheres, so the ranking flips with the seasons.
+// cam: YouTube video ID for a live stream, or null.
+// ═══════════════════════════════════════════════════════════════
+const SITES = [
+  // South Asia
+  { name:"Jacobabad, Pakistan", lat:28.28, lon:68.44, koppen:"BWh", cam:null },
+  { name:"Sibi, Pakistan", lat:29.54, lon:67.88, koppen:"BWh", cam:null },
+  { name:"Nawabshah, Pakistan", lat:26.24, lon:68.40, koppen:"BWh", cam:null },
+  { name:"Turbat, Pakistan", lat:26.00, lon:63.04, koppen:"BWh", cam:null },
+  { name:"Churu, India", lat:28.30, lon:74.97, koppen:"BWh", cam:null },
+  { name:"Delhi, India", lat:28.61, lon:77.21, koppen:"BSh", cam:null },
+  { name:"Nagpur, India", lat:21.15, lon:79.09, koppen:"Aw", cam:null },
+  // Middle East
+  { name:"Kuwait City, Kuwait", lat:29.38, lon:47.99, koppen:"BWh", cam:null },
+  { name:"Basra, Iraq", lat:30.51, lon:47.81, koppen:"BWh", cam:null },
+  { name:"Baghdad, Iraq", lat:33.31, lon:44.37, koppen:"BWh", cam:null },
+  { name:"Ahvaz, Iran", lat:31.32, lon:48.67, koppen:"BWh", cam:null },
+  { name:"Dezful, Iran", lat:32.38, lon:48.40, koppen:"BWh", cam:null },
+  { name:"Bandar-e Mahshahr, Iran", lat:30.56, lon:49.19, koppen:"BWh", cam:null },
+  { name:"Doha, Qatar", lat:25.29, lon:51.53, koppen:"BWh", cam:null },
+  { name:"Abu Dhabi, UAE", lat:24.45, lon:54.38, koppen:"BWh", cam:null },
+  { name:"Dubai Marina, UAE", lat:25.08, lon:55.14, koppen:"BWh", cam:"ka9MsehA8I4" },
+  { name:"Riyadh, Saudi Arabia", lat:24.71, lon:46.68, koppen:"BWh", cam:null },
+  { name:"Mecca, Saudi Arabia", lat:21.39, lon:39.86, koppen:"BWh", cam:null },
+  { name:"Tirat Zvi, Israel", lat:32.42, lon:35.53, koppen:"BSh", cam:null },
+  // Sahara & Africa
+  { name:"Dallol, Ethiopia", lat:14.24, lon:40.30, koppen:"BWh", cam:null },
+  { name:"Timbuktu, Mali", lat:16.77, lon:-3.01, koppen:"BWh", cam:null },
+  { name:"Niamey, Niger", lat:13.51, lon:2.13, koppen:"BSh", cam:null },
+  { name:"Bilma, Niger", lat:18.69, lon:12.92, koppen:"BWh", cam:null },
+  { name:"Faya-Largeau, Chad", lat:17.92, lon:19.11, koppen:"BWh", cam:null },
+  { name:"In Salah, Algeria", lat:27.19, lon:2.48, koppen:"BWh", cam:null },
+  { name:"Ouargla, Algeria", lat:31.95, lon:5.33, koppen:"BWh", cam:null },
+  { name:"Kebili, Tunisia", lat:33.70, lon:8.97, koppen:"BWh", cam:null },
+  { name:"Aswan, Egypt", lat:24.09, lon:32.90, koppen:"BWh", cam:null },
+  { name:"Khartoum, Sudan", lat:15.50, lon:32.56, koppen:"BWh", cam:null },
+  // North America
+  { name:"Death Valley, USA", lat:36.46, lon:-116.87, koppen:"BWh", cam:null },
+  { name:"Phoenix, USA", lat:33.45, lon:-112.07, koppen:"BWh", cam:null },
+  { name:"Las Vegas, USA", lat:36.17, lon:-115.14, koppen:"BWh", cam:"mmSKBT_nTfY" },
+  { name:"Palm Springs, USA", lat:33.83, lon:-116.55, koppen:"BWh", cam:null },
+  { name:"Tucson, USA", lat:32.22, lon:-110.97, koppen:"BWh", cam:null },
+  { name:"El Centro, USA", lat:32.79, lon:-115.56, koppen:"BWh", cam:null },
+  { name:"Mexicali, Mexico", lat:32.62, lon:-115.45, koppen:"BWh", cam:null },
+  { name:"Hermosillo, Mexico", lat:29.07, lon:-110.96, koppen:"BWh", cam:null },
+  // Australia (southern hemisphere — watch these in January)
+  { name:"Marble Bar, Australia", lat:-21.17, lon:119.75, koppen:"BWh", cam:null },
+  { name:"Oodnadatta, Australia", lat:-27.55, lon:135.45, koppen:"BWh", cam:null },
+  { name:"Birdsville, Australia", lat:-25.90, lon:139.35, koppen:"BWh", cam:null },
+  { name:"Onslow, Australia", lat:-21.64, lon:115.11, koppen:"BWh", cam:null },
+  { name:"Alice Springs, Australia", lat:-23.70, lon:133.88, koppen:"BWh", cam:null },
+  // South America (southern hemisphere)
+  { name:"Villamontes, Bolivia", lat:-21.26, lon:-63.47, koppen:"Aw", cam:null },
+  { name:"Rivadavia, Argentina", lat:-24.19, lon:-62.88, koppen:"BSh", cam:null },
+  { name:"Santiago del Estero, Argentina", lat:-27.78, lon:-64.26, koppen:"BSh", cam:null },
+  // Central & East Asia
+  { name:"Turpan, China", lat:42.95, lon:89.18, koppen:"BWk", cam:null },
+  { name:"Termez, Uzbekistan", lat:37.22, lon:67.28, koppen:"BWk", cam:null },
+  { name:"Ashgabat, Turkmenistan", lat:37.96, lon:58.33, koppen:"BWk", cam:null },
+  // Europe (heatwave watch) & SE Asia
+  { name:"Seville, Spain", lat:37.39, lon:-5.98, koppen:"Csa", cam:null },
+  { name:"Athens, Greece", lat:37.98, lon:23.73, koppen:"Csa", cam:null },
+  { name:"Bangkok, Thailand", lat:13.74, lon:100.56, koppen:"Aw", cam:"Q71sLS8h9a4" },
+];
+
+const heatColor = t => t==null ? "#3b4252" : t<=0 ? "#38bdf8" : t<=10 ? "#2dd4bf" : t<=20 ? "#a3e635" : t<=28 ? "#facc15" : t<=34 ? "#fb923c" : t<=40 ? "#ef4444" : t<=46 ? "#dc2626" : "#ffffff";
+const heatLabel = t => t==null ? "NO DATA" : t<=0 ? "FREEZING" : t<=10 ? "COLD" : t<=20 ? "MILD" : t<=28 ? "WARM" : t<=34 ? "HOT" : t<=40 ? "VERY HOT" : t<=46 ? "EXTREME HEAT" : "RECORD TERRITORY";
+const $ = id => document.getElementById(id);
+const ordinal = n => n===1?"#1 HOTTEST ON EARTH":`#${n} HOTTEST ON EARTH`;
+
+let ranked = [];       // sites sorted by current temp, hottest first
+let cursor = 0;        // index into top-5 patrol
+let auto = true;
+let patrolTimer = null;
+let current = null;
+
+// One batched request for all sites (Open-Meteo supports lists)
+async function scanPlanet() {
+  const lats = SITES.map(s => s.lat).join(",");
+  const lons = SITES.map(s => s.lon).join(",");
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,is_day&daily=temperature_2m_max&forecast_days=1&timezone=auto`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("scan failed");
+  const arr = await r.json();
+  const list = (Array.isArray(arr) ? arr : [arr]).map((d, i) => ({
+    ...SITES[i],
+    w: {
+      temp: d.current.temperature_2m, feels: d.current.apparent_temperature,
+      humidity: d.current.relative_humidity_2m, wind: d.current.wind_speed_10m,
+      isDay: d.current.is_day === 1, todayMax: d.daily?.temperature_2m_max?.[0],
+      timezone: d.timezone,
+    },
+  }));
+  list.sort((a, b) => b.w.temp - a.w.temp);
+  return list;
+}
+
+function localTime(tz) {
+  try { return new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:tz}).format(new Date()); }
+  catch { return "--:--"; }
+}
+
+function renderCam(loc) {
+  const slot = $("camslot");
+  if (loc.cam) {
+    slot.innerHTML = `<div class="cam-frame"><iframe
+      src="https://www.youtube-nocookie.com/embed/${loc.cam}?autoplay=1&mute=1"
+      title="Live cam: ${loc.name}" allow="autoplay; encrypted-media"
+      allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`;
+  } else {
+    const q = encodeURIComponent(`${loc.name} live cam`);
+    slot.innerHTML = `<div class="cam-fallback">
+      <p>No permanent live cam configured here yet.</p>
+      <a href="https://www.youtube.com/results?search_query=${q}&sp=EgJAAQ%253D%253D" target="_blank" rel="noopener">FIND A LIVE CAM ↗</a>
+      <p style="font-size:10px;color:#5d6572">Found one? Add its video ID to the SITES list at the top of this file.</p>
+    </div>`;
+  }
+}
+
+function showSite(site, rank) {
+  current = site;
+  const w = site.w, c = heatColor(w.temp);
+  document.documentElement.style.setProperty("--glow", c + "99");
+  document.documentElement.style.setProperty("--glow-soft", c + "33");
+  const badge = $("rankbadge");
+  if (rank) {
+    badge.style.visibility = "visible";
+    badge.textContent = ordinal(rank);
+    badge.style.color = c; badge.style.borderColor = c;
+  } else {
+    badge.style.visibility = "visible";
+    badge.textContent = "CUSTOM COORDINATES";
+    badge.style.color = "#8b93a1"; badge.style.borderColor = "#2a3342";
+  }
+  const p = $("portal");
+  p.style.borderColor = c;
+  p.style.background = `radial-gradient(circle at 50% 62%, ${c}44 0%, ${c}18 42%, #0b0e14 78%)`;
+  $("bigtemp").textContent = Math.round(w.temp) + "°";
+  $("bigtemp").style.textShadow = `0 0 30px ${c}`;
+  $("heatlabel").textContent = heatLabel(w.temp);
+  $("heatlabel").style.color = c;
+  $("daynight").textContent = `${w.isDay ? "☀ DAY" : "☾ NIGHT"} · ${localTime(w.timezone)} local`;
+  const haze = $("haze");
+  haze.style.display = w.temp >= 34 ? "block" : "none";
+  haze.style.background = `radial-gradient(circle at 50% 80%, ${c}30, transparent 65%)`;
+  $("locname").textContent = site.name;
+  $("coords").textContent = `${site.lat.toFixed(2)}°, ${site.lon.toFixed(2)}°${site.koppen ? " · KÖPPEN " + site.koppen : ""}`;
+  $("feels").textContent = Math.round(w.feels) + "°C";
+  $("humidity").textContent = w.humidity + "%";
+  $("wind").textContent = Math.round(w.wind) + " km/h";
+  $("stats").style.visibility = "visible";
+  renderCam(site);
+  document.querySelectorAll(".hotrow").forEach((el, i) =>
+    el.classList.toggle("active", ranked[i] === site));
+}
+
+function renderBoard() {
+  const board = $("board");
+  board.innerHTML = "";
+  ranked.slice(0, 15).forEach((h, i) => {
+    const row = document.createElement("div");
+    row.className = "hotrow"; row.tabIndex = 0; row.setAttribute("role", "button");
+    const c = heatColor(h.w.temp);
+    row.innerHTML = `
+      <div class="rank">${i + 1}</div>
+      <div class="dot" style="background:${c};box-shadow:0 0 8px ${c}"></div>
+      <div class="info">
+        <div class="nm">${h.name} ${h.cam ? '<span class="camtag">● CAM</span>' : ""}</div>
+        <div class="sub">Köppen ${h.koppen} · max today ${Math.round(h.w.todayMax)}°C</div>
+      </div>
+      <div class="tmp" style="color:${c}">${Math.round(h.w.temp)}°</div>`;
+    const go = () => {
+      stopPatrol();
+      showSite(h, i + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    row.addEventListener("click", go);
+    row.addEventListener("keydown", e => e.key === "Enter" && go());
+    board.appendChild(row);
+  });
+}
+
+// ── Auto-patrol: cycle through the live top 5 ────────────────────
+function startPatrol() {
+  auto = true;
+  $("autobtn").classList.add("on");
+  $("autobtn").setAttribute("aria-pressed", "true");
+  clearInterval(patrolTimer);
+  patrolTimer = setInterval(() => {
+    cursor = (cursor + 1) % Math.min(5, ranked.length);
+    showSite(ranked[cursor], cursor + 1);
+  }, 20000);
+}
+function stopPatrol() {
+  auto = false;
+  $("autobtn").classList.remove("on");
+  $("autobtn").setAttribute("aria-pressed", "false");
+  clearInterval(patrolTimer);
+}
+$("autobtn").addEventListener("click", () => auto ? stopPatrol() : (showSite(ranked[cursor], cursor + 1), startPatrol()));
+$("nextbtn").addEventListener("click", () => {
+  stopPatrol();
+  cursor = (cursor + 1) % Math.min(5, ranked.length);
+  showSite(ranked[cursor], cursor + 1);
+});
+
+// ── Manual portal: shared opener ─────────────────────────────────
+async function openManual(name, lat, lon) {
+  const e = $("err");
+  e.style.display = "none";
+  stopPatrol();
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,is_day&daily=temperature_2m_max&forecast_days=1&timezone=auto`;
+    const d = await (await fetch(url)).json();
+    showSite({
+      name, lat, lon, koppen: null, cam: null,
+      w: {
+        temp: d.current.temperature_2m, feels: d.current.apparent_temperature,
+        humidity: d.current.relative_humidity_2m, wind: d.current.wind_speed_10m,
+        isDay: d.current.is_day === 1, todayMax: d.daily?.temperature_2m_max?.[0],
+        timezone: d.timezone,
+      },
+    }, null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch {
+    e.textContent = "Portal connection lost. Try again.";
+    e.style.display = "block";
+  }
+}
+
+// ── Coordinate dial ──────────────────────────────────────────────
+$("go").addEventListener("click", () => {
+  const lat = parseFloat($("lat").value), lon = parseFloat($("lon").value);
+  const e = $("err");
+  if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+    e.textContent = "Latitude must be −90 to 90, longitude −180 to 180.";
+    e.style.display = "block"; return;
+  }
+  openManual(`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`, lat, lon);
+});
+
+// ── Place search with autocomplete (Open-Meteo geocoding) ────────
+const placeq = $("placeq"), suggestEl = $("suggest");
+let suggestions = [], hl = -1, debounceT = null, lastQuery = "";
+
+function hideSuggest() {
+  suggestEl.style.display = "none";
+  placeq.setAttribute("aria-expanded", "false");
+  hl = -1;
+}
+
+function renderSuggest() {
+  if (!suggestions.length) { hideSuggest(); return; }
+  suggestEl.innerHTML = "";
+  suggestions.forEach((s, i) => {
+    const opt = document.createElement("div");
+    opt.className = "opt" + (i === hl ? " hl" : "");
+    opt.setAttribute("role", "option");
+    const parts = [s.admin1, s.country].filter(Boolean).join(", ");
+    opt.innerHTML = `<div class="pn">${s.name}</div>
+      <div class="pc">${parts} · ${s.latitude.toFixed(2)}°, ${s.longitude.toFixed(2)}°</div>`;
+    opt.addEventListener("mousedown", ev => { ev.preventDefault(); pick(i); });
+    suggestEl.appendChild(opt);
+  });
+  suggestEl.style.display = "block";
+  placeq.setAttribute("aria-expanded", "true");
+}
+
+function pick(i) {
+  const s = suggestions[i];
+  if (!s) return;
+  placeq.value = s.name + (s.country ? ", " + s.country : "");
+  hideSuggest();
+  openManual(`${s.name}${s.country ? ", " + s.country : ""}`, s.latitude, s.longitude);
+}
+
+async function geocode(q) {
+  try {
+    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`;
+    const d = await (await fetch(url)).json();
+    if (q !== lastQuery) return; // stale response, ignore
+    suggestions = d.results || [];
+    hl = -1;
+    renderSuggest();
+  } catch { hideSuggest(); }
+}
+
+placeq.addEventListener("input", () => {
+  const q = placeq.value.trim();
+  lastQuery = q;
+  clearTimeout(debounceT);
+  if (q.length < 2) { suggestions = []; hideSuggest(); return; }
+  debounceT = setTimeout(() => geocode(q), 250);
+});
+
+placeq.addEventListener("keydown", e => {
+  if (suggestEl.style.display !== "block") return;
+  if (e.key === "ArrowDown") { e.preventDefault(); hl = (hl + 1) % suggestions.length; renderSuggest(); }
+  else if (e.key === "ArrowUp") { e.preventDefault(); hl = (hl - 1 + suggestions.length) % suggestions.length; renderSuggest(); }
+  else if (e.key === "Enter") { e.preventDefault(); pick(hl >= 0 ? hl : 0); }
+  else if (e.key === "Escape") hideSuggest();
+});
+
+placeq.addEventListener("blur", () => setTimeout(hideSuggest, 150));
+
+// ── Boot + rescan every 10 minutes ───────────────────────────────
+async function boot(rescan = false) {
+  try {
+    ranked = await scanPlanet();
+    renderBoard();
+    updateGlobeMarkers();
+    const now = new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit"}).format(new Date());
+    $("scanline").innerHTML = `<span class="live">● LIVE</span> ${SITES.length} SITES SCANNED · HOTTEST: ${ranked[0].name.toUpperCase()} · LAST SCAN ${now}`;
+    if (!rescan || auto) {
+      cursor = 0;
+      showSite(ranked[0], 1);
+      if (auto && mode === "portal") startPatrol();
+    }
+  } catch {
+    $("scanline").innerHTML = `<span class="live">● OFFLINE</span> SCAN FAILED — CHECK CONNECTION, RETRYING IN 10 MIN`;
+    $("heatlabel").textContent = "NO SIGNAL";
+  }
+}
+boot();
+setInterval(() => boot(true), 10 * 60 * 1000);
+
+// ═════════════════════════════════════════════════════════════════
+// GLOBE VIEW — CesiumJS 3D earth with live heat markers
+// ═════════════════════════════════════════════════════════════════
+let mode = "portal";
+let viewer = null, cesiumLoading = false, wasAuto = false;
+const CESIUM_VER = "1.95.0";
+const CESIUM_BASE = `https://cdnjs.cloudflare.com/ajax/libs/cesium/${CESIUM_VER}/`;
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = src; s.onload = res; s.onerror = rej;
+    document.head.appendChild(s);
+  });
+}
+function loadCss(href) {
+  const l = document.createElement("link");
+  l.rel = "stylesheet"; l.href = href;
+  document.head.appendChild(l);
+}
+
+async function initGlobe() {
+  if (viewer || cesiumLoading) return;
+  cesiumLoading = true;
+  $("cesiumContainer").innerHTML = '<div style="padding:20px;font-size:12px;color:#8b93a1">LOADING GLOBE…</div>';
+  window.CESIUM_BASE_URL = CESIUM_BASE;
+  loadCss(CESIUM_BASE + "Widgets/widgets.min.css");
+  await loadScript(CESIUM_BASE + "Cesium.js");
+  $("cesiumContainer").innerHTML = "";
+  viewer = new Cesium.Viewer("cesiumContainer", {
+    imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
+      url: "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+    }),
+    baseLayerPicker: false, geocoder: false, homeButton: false,
+    sceneModePicker: false, navigationHelpButton: false, animation: false,
+    timeline: false, fullscreenButton: false, infoBox: false,
+    selectionIndicator: false, requestRenderMode: false,
+  });
+  viewer.scene.globe.enableLighting = true;   // real day/night terminator
+  viewer.scene.skyAtmosphere.show = true;
+  viewer.scene.screenSpaceCameraController.minimumZoomDistance = 200;
+  updateGlobeMarkers();
+  // Tap a heat marker → info card (drillPick catches markers under labels/overlaps)
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  handler.setInputAction(mv => {
+    const picks = viewer.scene.drillPick(mv.position, 5);
+    const hit = picks.find(p => p.id && p.id.siteRef);
+    if (hit) showGlobeCard(hit.id.siteRef, hit.id.siteRank);
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+  cesiumLoading = false;
+  flyToCurrent(true);
+}
+
+function updateGlobeMarkers() {
+  if (!viewer) return;
+  viewer.entities.removeAll();
+  ranked.forEach((h, i) => {
+    const c = heatColor(h.w.temp);
+    const shortName = h.name.split(",")[0];
+    const ent = viewer.entities.add({
+      // Slight altitude prevents z-fighting with the surface;
+      // depth testing stays ON so far-side markers hide behind the globe.
+      position: Cesium.Cartesian3.fromDegrees(h.lon, h.lat, 2000),
+      point: {
+        pixelSize: i < 5 ? 18 : 13,
+        color: Cesium.Color.fromCssColorString(c),
+        outlineColor: Cesium.Color.fromCssColorString(c).withAlpha(0.35),
+        outlineWidth: i < 5 ? 10 : 6,
+      },
+      label: {
+        text: (i < 5 ? `#${i + 1} ` : "") + `${shortName} ${Math.round(h.w.temp)}°`,
+        font: (i < 5 ? "700 13px" : "400 11px") + " 'Space Mono', monospace",
+        fillColor: Cesium.Color.fromCssColorString(i < 5 ? "#eef1f6" : "#c8cdd6"),
+        showBackground: true,
+        backgroundColor: Cesium.Color.fromCssColorString("#07090d").withAlpha(0.75),
+        backgroundPadding: new Cesium.Cartesian2(6, 4),
+        pixelOffset: new Cesium.Cartesian2(0, i < 5 ? -24 : -18),
+        // fade the small labels slightly when zoomed far out to cut clutter
+        translucencyByDistance: i < 5 ? undefined :
+          new Cesium.NearFarScalar(2.0e6, 1.0, 1.6e7, 0.45),
+      },
+    });
+    ent.siteRef = h;
+    ent.siteRank = i + 1;
+  });
+}
+
+function showGlobeCard(site, rank) {
+  const c = heatColor(site.w.temp);
+  $("gtemp").textContent = Math.round(site.w.temp) + "°";
+  $("gtemp").style.color = c;
+  $("gnm").textContent = (rank ? `#${rank} · ` : "") + site.name;
+  $("gsub").textContent = `${site.lat.toFixed(2)}°, ${site.lon.toFixed(2)}°${site.koppen ? " · KÖPPEN " + site.koppen : ""} · feels ${Math.round(site.w.feels)}°C`;
+  $("globecard").style.display = "flex";
+  $("gopen").onclick = () => { setMode("portal"); showSite(site, rank || null); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  // Fly all the way in: max-detail satellite view of the place itself
+  viewer.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(site.lon, site.lat, 1400),
+    orientation: {
+      heading: 0,
+      pitch: Cesium.Math.toRadians(-55), // tilted, Google-Earth style approach
+      roll: 0,
+    },
+    duration: 2.4,
+  });
+}
+
+function flyToCurrent(instant) {
+  if (!viewer) return;
+  const target = current || (ranked.length ? ranked[0] : null);
+  if (!target) return;
+  const rank = ranked.indexOf(target);
+  showGlobeCard(target, rank >= 0 ? rank + 1 : null);
+  if (instant) viewer.camera.setView({
+    destination: Cesium.Cartesian3.fromDegrees(target.lon, target.lat, 2500000),
+  });
+}
+
+// ── Segment switching ────────────────────────────────────────────
+function setMode(m) {
+  mode = m;
+  const portal = m === "portal";
+  $("portalview").style.display = portal ? "block" : "none";
+  $("globeview").style.display = portal ? "none" : "block";
+  $("segportal").classList.toggle("on", portal);
+  $("segglobe").classList.toggle("on", !portal);
+  $("segportal").setAttribute("aria-selected", portal);
+  $("segglobe").setAttribute("aria-selected", !portal);
+  if (!portal) {
+    wasAuto = auto;
+    stopPatrol();
+    initGlobe();
+    if (viewer) flyToCurrent(false);
+  } else if (wasAuto) {
+    startPatrol();
+  }
+}
+$("segportal").addEventListener("click", () => setMode("portal"));
+$("segglobe").addEventListener("click", () => setMode("globe"));
+</script>
+</body>
+</html>
