@@ -159,9 +159,14 @@ body.menu-open .drawer__panel{transform:none}
 /* the title-card preview is a whole 4:3 broadcast frame — crop it from the
    middle so the lettering stays centred rather than sliding off the left */
 .project-card--kbsmvm .project-card__thumb img{object-position:50% 50%}
+/* the alphaverse thumb is a drawn scene, not a photo — show it whole */
+.project-card--alphaverse .project-card__thumb img{object-fit:contain;object-position:50% 50%;background:#0B0A1A}
 .project-card:hover .project-card__thumb img{transform:scale(1.04)}
 .project-card__badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.02em;color:#eafff2;background:rgba(8,12,18,.72);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px)}
 .project-card__badge-dot{width:8px;height:8px;border-radius:50%;background:#36e08a;box-shadow:0 0 8px #36e08a;animation:pulse 1.8s infinite}
+/* not a live product yet — amber rather than the green "live site" dot */
+.project-card__badge--wip{color:#fff3dd}
+.project-card__badge--wip .project-card__badge-dot{background:#FFC966;box-shadow:0 0 8px #FFC966}
 .project-card__body{padding:22px clamp(20px,3vw,28px) 26px}
 .project-card__title{font-family:var(--font-head);margin:0 0 6px;font-size:clamp(20px,3vw,26px);font-weight:700}
 .project-card__desc{margin:0 0 10px;color:var(--muted);line-height:1.55;font-size:15px}

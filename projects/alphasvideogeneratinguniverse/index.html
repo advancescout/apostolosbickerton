@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha's Video Generating Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0B0A1A;
+  --deepspace:#141230;
+  --nebula:#2A2160;
+  --panel:#191636;
+  --line:#332C66;
+  --stargold:#FFC966;
+  --plasma:#FF6FB5;
+  --ink:#EDEAFF;
+  --dim:#9A93C4;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:'Space Grotesk',sans-serif;
+  line-height:1.55;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 20px}
+
+/* ---------- Header ---------- */
+header{
+  padding:26px 0 10px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.logo{font-family:'Unbounded',cursive;font-weight:800;font-size:1.05rem;letter-spacing:.5px}
+.logo span{color:var(--stargold)}
+.url{font-size:.8rem;color:var(--dim)}
+
+/* ---------- Hero ---------- */
+.hero{padding:44px 0 26px;text-align:center}
+.hero h1{
+  font-family:'Unbounded',cursive;font-weight:800;
+  font-size:clamp(1.7rem,5.4vw,3.2rem);
+  line-height:1.12;
+  background:linear-gradient(100deg,var(--ink) 20%,var(--stargold) 55%,var(--plasma) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero p{margin:16px auto 0;max-width:640px;color:var(--dim);font-size:1.02rem}
+.badge{
+  display:inline-block;margin-top:18px;padding:7px 16px;border:1px solid var(--line);
+  border-radius:999px;font-size:.78rem;color:var(--stargold);letter-spacing:.12em;text-transform:uppercase;
+}
+
+/* ---------- Studio layout ---------- */
+.studio{display:grid;grid-template-columns:1fr 340px;gap:18px;margin:34px 0 60px}
+@media(max-width:900px){.studio{grid-template-columns:1fr}}
+.panel{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;
+}
+.panel h2{
+  font-family:'Unbounded',cursive;font-size:.86rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--stargold);margin-bottom:14px;
+}
+label{display:block;font-size:.82rem;color:var(--dim);margin:12px 0 6px}
+textarea,input[type=text],input[type=number],select{
+  width:100%;background:var(--deepspace);border:1px solid var(--line);border-radius:10px;
+  color:var(--ink);padding:11px 12px;font-family:'Space Grotesk',sans-serif;font-size:.95rem;
+}
+textarea{min-height:88px;resize:vertical}
+textarea:focus,input:focus,select:focus,button:focus-visible{
+  outline:2px solid var(--stargold);outline-offset:2px;
+}
+
+/* Model cards */
+.models{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.model{
+  border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;
+  background:var(--deepspace);transition:border-color .2s,transform .2s;
+}
+.model:hover{transform:translateY(-2px)}
+.model.sel{border-color:var(--stargold);box-shadow:0 0 0 1px var(--stargold)}
+.model b{display:block;font-size:.9rem}
+.model small{color:var(--dim);font-size:.72rem}
+
+/* Duration dial — the signature */
+.duration{
+  margin-top:6px;background:radial-gradient(120% 160% at 50% 0%,var(--nebula),var(--deepspace));
+  border:1px solid var(--line);border-radius:var(--radius);padding:18px;text-align:center;
+}
+.duration .fields{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.duration .field{display:flex;flex-direction:column;align-items:center}
+.duration input{width:110px;text-align:center;font-family:'Unbounded',cursive;font-size:1.3rem;font-weight:600}
+.duration .total{margin-top:12px;font-size:.86rem;color:var(--stargold)}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.tab{
+  border:1px solid var(--line);background:transparent;color:var(--dim);border-radius:999px;
+  padding:7px 14px;font-size:.8rem;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+}
+.tab.on{background:var(--stargold);color:#141230;border-color:var(--stargold);font-weight:700}
+.tabpane{display:none}
+.tabpane.on{display:block}
+
+/* Keyframes */
+.kf-list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.kf{
+  display:flex;gap:10px;align-items:center;background:var(--deepspace);
+  border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:.85rem;
+}
+.kf .t{color:var(--stargold);font-family:'Unbounded',cursive;font-size:.75rem;min-width:64px}
+.kf button{margin-left:auto}
+
+/* Buttons */
+.btn{
+  display:inline-block;border:none;border-radius:999px;padding:12px 22px;cursor:pointer;
+  font-family:'Unbounded',cursive;font-weight:600;font-size:.85rem;
+}
+.btn-gold{background:var(--stargold);color:#141230}
+.btn-line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn-sm{padding:6px 12px;font-size:.68rem}
+.btn:hover{filter:brightness(1.1)}
+
+/* Upload chips */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chip{
+  background:var(--deepspace);border:1px solid var(--line);border-radius:8px;
+  padding:6px 10px;font-size:.75rem;color:var(--dim);max-width:100%;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+
+/* Preview */
+.preview{
+  margin-top:16px;background:#000;border:1px solid var(--line);border-radius:var(--radius);
+  aspect-ratio:16/9;position:relative;overflow:hidden;display:none;
+}
+.preview.on{display:block}
+.preview canvas{width:100%;height:100%;display:block}
+.preview .tag{
+  position:absolute;top:10px;left:10px;background:rgba(11,10,26,.75);
+  padding:4px 10px;border-radius:6px;font-size:.68rem;color:var(--stargold);letter-spacing:.08em;
+}
+.progress{height:6px;background:var(--deepspace);border-radius:99px;margin-top:12px;overflow:hidden;display:none}
+.progress.on{display:block}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--stargold),var(--plasma));transition:width .3s}
+.status{margin-top:8px;font-size:.8rem;color:var(--dim);min-height:1.2em}
+
+/* Projects */
+.proj{
+  background:var(--deepspace);border:1px solid var(--line);border-radius:10px;
+  padding:12px;font-size:.84rem;margin-bottom:10px;
+}
+.proj b{display:block}
+.proj small{color:var(--dim)}
+.empty{color:var(--dim);font-size:.84rem}
+
+/* Honest footer note */
+.note{
+  border:1px dashed var(--line);border-radius:var(--radius);padding:16px 18px;
+  font-size:.83rem;color:var(--dim);margin-bottom:60px;
+}
+.note b{color:var(--stargold)}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="wrap">
+
+<header>
+  <div class="logo">ALPHA'S <span>VIDEO GENERATING</span> UNIVERSE</div>
+  <div class="url">apostolosbickerton.com/projects/alphasvideogeneratinguniverse</div>
+</header>
+
+<section class="hero">
+  <h1>Type any length.<br>Build any universe.</h1>
+  <p>A studio for directing video: pick a model, add references, set keyframes, edit, extend, and import your own video and audio — with a duration dial that takes minutes and hours.</p>
+  <span class="badge">Prototype studio · An ApostolosBickerton.com project</span>
+</section>
+
+<div class="studio">
+
+  <!-- LEFT: creation studio -->
+  <div class="panel">
+    <h2>Create</h2>
+
+    <label>Choose a video model</label>
+    <div class="models" id="models" role="listbox" aria-label="Video models"></div>
+
+    <label for="prompt">Describe your video</label>
+    <textarea id="prompt" placeholder="A golden spaceship glides over a neon city at night, camera slowly pulling back to reveal a whole galaxy..."></textarea>
+
+    <div class="duration">
+      <label style="margin-top:0">Duration — type it in</label>
+      <div class="fields">
+        <div class="field"><input type="number" id="hrs" min="0" value="0" aria-label="Hours"><small style="color:var(--dim)">hours</small></div>
+        <div class="field"><input type="number" id="mins" min="0" value="1" aria-label="Minutes"><small style="color:var(--dim)">minutes</small></div>
+      </div>
+      <div class="total" id="totalTime">Total: 1 minute — 1,440 frames at 24 fps</div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="tabs" role="tablist">
+        <button class="tab on" data-pane="refs" role="tab">References</button>
+        <button class="tab" data-pane="keys" role="tab">Keyframes</button>
+        <button class="tab" data-pane="edit" role="tab">Edit</button>
+        <button class="tab" data-pane="extend" role="tab">Extend</button>
+        <button class="tab" data-pane="import" role="tab">Import</button>
+      </div>
+
+      <div class="tabpane on" id="pane-refs">
+        <label>Reference images guide the style and characters</label>
+        <input type="file" id="refFiles" accept="image/*" multiple>
+        <div class="thumbs" id="refThumbs"></div>
+      </div>
+
+      <div class="tabpane" id="pane-keys">
+        <label>Add a keyframe: what happens, and when</label>
+        <input type="text" id="kfText" placeholder="e.g. The dragon lands on the tower">
+        <div style="display:flex;gap:10px;margin-top:8px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="kfMin" min="0" value="0" style="width:90px" aria-label="Keyframe minute"> <span style="color:var(--dim);font-size:.8rem">min</span>
+          <input type="number" id="kfSec" min="0" max="59" value="0" style="width:90px" aria-label="Keyframe second"> <span style="color:var(--dim);font-size:.8rem">sec</span>
+          <button class="btn btn-line btn-sm" id="addKf">Add keyframe</button>
+        </div>
+        <div class="kf-list" id="kfList"></div>
+      </div>
+
+      <div class="tabpane" id="pane-edit">
+        <label>Describe an edit to the last preview</label>
+        <input type="text" id="editText" placeholder="e.g. Make the sky purple and add two moons">
+        <button class="btn btn-line btn-sm" id="applyEdit" style="margin-top:8px">Apply edit</button>
+        <div class="chips" id="editLog"></div>
+      </div>
+
+      <div class="tabpane" id="pane-extend">
+        <label>Extend the video by more time</label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="extMins" min="1" value="5" style="width:110px" aria-label="Extend minutes"> <span style="color:var(--dim);font-size:.8rem">minutes</span>
+          <button class="btn btn-line btn-sm" id="doExtend">Extend</button>
+        </div>
+      </div>
+
+      <div class="tabpane" id="pane-import">
+        <label>Import your own video</label>
+        <input type="file" id="vidFile" accept="video/*">
+        <label>Import your own audio</label>
+        <input type="file" id="audFile" accept="audio/*">
+        <div class="chips" id="importChips"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-gold" id="generate">Generate preview</button>
+      <button class="btn btn-line" id="saveProj">Save to projects</button>
+    </div>
+
+    <div class="progress" id="prog"><i></i></div>
+    <div class="status" id="status"></div>
+
+    <div class="preview" id="preview">
+      <canvas id="pv" width="960" height="540"></canvas>
+      <span class="tag">PREVIEW SIMULATION</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: projects -->
+  <div class="panel">
+    <h2>Projects</h2>
+    <p class="empty" id="projEmpty">Nothing saved yet. Generate something, then save it here.</p>
+    <div id="projList"></div>
+    <button class="btn btn-line btn-sm" id="exportAll" style="margin-top:6px">Download project file for ApostolosBickerton.com</button>
+  </div>
+</div>
+
+<div class="note">
+  <b>Honest bit:</b> this page is a full working studio interface, but the video it shows is a built-in simulation, not real AI footage. The model names in the picker are real models made by other companies (Google, OpenAI, Kuaishou, Runway, ByteDance, Alibaba, MiniMax, Luma, Pika, Black Forest Labs), shown here as labels only — this site is not connected to them or affiliated with them. Real AI video generation runs on huge GPU servers, which is why every real service uses credits or limits — truly unlimited free generation doesn't exist anywhere yet. Everything else — projects, keyframes, references, imports, the duration dial — works right here in your browser, and nothing you add ever leaves your device.
+</div>
+
+</div>
+
+<script>
+/* ---------- Starfield background ---------- */
+const sc=document.getElementById('stars'),sx=sc.getContext('2d');
+let stars=[];
+function sizeStars(){sc.width=innerWidth;sc.height=innerHeight;
+  stars=Array.from({length:Math.min(140,innerWidth/8)},()=>({
+    x:Math.random()*sc.width,y:Math.random()*sc.height,
+    r:Math.random()*1.4+.3,tw:Math.random()*Math.PI*2,sp:.002+Math.random()*.004}));}
+sizeStars();addEventListener('resize',sizeStars);
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function loop(){
+  sx.clearRect(0,0,sc.width,sc.height);
+  for(const s of stars){
+    s.tw+=s.sp*16;
+    const a=.35+.5*Math.abs(Math.sin(s.tw));
+    sx.globalAlpha=a;sx.fillStyle='#EDEAFF';
+    sx.beginPath();sx.arc(s.x,s.y,s.r,0,7);sx.fill();
+  }
+  sx.globalAlpha=1;
+  if(!reduced)requestAnimationFrame(loop);
+})();
+
+/* ---------- State ---------- */
+const state={model:'Veo 3',refs:[],keyframes:[],edits:[],imports:[],projects:[]};
+
+/* ---------- Models ---------- */
+const MODELS=[
+  {n:'Veo 3',d:'Google · realism + audio'},
+  {n:'Sora 2',d:'OpenAI · cinematic'},
+  {n:'Kling 2.1',d:'Kuaishou · motion'},
+  {n:'Runway Gen-4',d:'Pro editing tools'},
+  {n:'Seedance 1.0',d:'ByteDance · multi-shot'},
+  {n:'Wan 2.2',d:'Alibaba · open source'},
+  {n:'Hailuo 02',d:'MiniMax · physics'},
+  {n:'Luma Ray 2',d:'Fast dream visuals'},
+  {n:'Pika 2.2',d:'Fun effects'},
+  {n:'FLUX',d:'Black Forest · keyframe stills'},
+];
+const modelsEl=document.getElementById('models');
+MODELS.forEach((m,i)=>{
+  const b=document.createElement('div');
+  b.className='model'+(i===0?' sel':'');b.setAttribute('role','option');b.tabIndex=0;
+  b.innerHTML=`<b>${m.n}</b><small>${m.d}</small>`;
+  const pick=()=>{document.querySelectorAll('.model').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');state.model=m.n;};
+  b.onclick=pick;b.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')pick()};
+  modelsEl.appendChild(b);
+});
+
+/* ---------- Duration dial ---------- */
+const hrs=document.getElementById('hrs'),mins=document.getElementById('mins'),tot=document.getElementById('totalTime');
+function fmtTotal(){
+  const h=Math.max(0,+hrs.value||0),m=Math.max(0,+mins.value||0);
+  const totalMin=h*60+m, frames=(totalMin*60*24).toLocaleString('en-GB');
+  let label=h?`${h} hour${h!==1?'s':''} `:''; label+=`${m} minute${m!==1?'s':''}`;
+  tot.textContent=totalMin===0?'Total: 0 — give it at least 1 minute':`Total: ${label} — ${frames} frames at 24 fps`;
+}
+hrs.oninput=mins.oninput=fmtTotal;fmtTotal();
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('on'));
+    t.classList.add('on');
+    document.getElementById('pane-'+t.dataset.pane).classList.add('on');
+  };
+});
+
+/* ---------- References ---------- */
+document.getElementById('refFiles').onchange=e=>{
+  const box=document.getElementById('refThumbs');
+  [...e.target.files].forEach(f=>{
+    state.refs.push(f.name);
+    const img=document.createElement('img');
+    img.src=URL.createObjectURL(f);img.alt=f.name;
+    box.appendChild(img);
+  });
+};
+
+/* ---------- Keyframes ---------- */
+document.getElementById('addKf').onclick=()=>{
+  const txt=document.getElementById('kfText').value.trim();
+  if(!txt)return;
+  const m=+document.getElementById('kfMin').value||0,s=+document.getElementById('kfSec').value||0;
+  state.keyframes.push({t:`${m}:${String(s).padStart(2,'0')}`,txt});
+  state.keyframes.sort((a,b)=>a.t.localeCompare(b.t,undefined,{numeric:true}));
+  const list=document.getElementById('kfList');list.innerHTML='';
+  state.keyframes.forEach((k,i)=>{
+    const row=document.createElement('div');row.className='kf';
+    row.innerHTML=`<span class="t">${k.t}</span><span>${k.txt}</span>`;
+    const del=document.createElement('button');del.className='btn btn-line btn-sm';del.textContent='Remove';
+    del.onclick=()=>{state.keyframes.splice(i,1);row.remove();};
+    row.appendChild(del);list.appendChild(row);
+  });
+  document.getElementById('kfText').value='';
+};
+
+/* ---------- Edits ---------- */
+document.getElementById('applyEdit').onclick=()=>{
+  const t=document.getElementById('editText').value.trim();if(!t)return;
+  state.edits.push(t);
+  const c=document.createElement('span');c.className='chip';c.textContent='Edited: '+t;
+  document.getElementById('editLog').appendChild(c);
+  document.getElementById('editText').value='';
+  if(document.getElementById('preview').classList.contains('on'))runSim(true);
+};
+
+/* ---------- Extend ---------- */
+document.getElementById('doExtend').onclick=()=>{
+  const add=Math.max(1,+document.getElementById('extMins').value||1);
+  mins.value=(+mins.value||0)+add;fmtTotal();
+  setStatus(`Extended by ${add} minute${add!==1?'s':''}. New total updated on the duration dial.`);
+};
+
+/* ---------- Imports ---------- */
+function addImport(e,kind){
+  const f=e.target.files[0];if(!f)return;
+  state.imports.push({kind,name:f.name});
+  const c=document.createElement('span');c.className='chip';
+  c.textContent=(kind==='video'?'🎬 ':'🎵 ')+f.name;
+  document.getElementById('importChips').appendChild(c);
+}
+document.getElementById('vidFile').onchange=e=>addImport(e,'video');
+document.getElementById('audFile').onchange=e=>addImport(e,'audio');
+
+/* ---------- Generate: simulated nebula render ---------- */
+const pv=document.getElementById('pv'),px=pv.getContext('2d');
+let simRunning=false,seed=1;
+function setStatus(t){document.getElementById('status').textContent=t;}
+function runSim(reseed){
+  if(reseed)seed=Math.random()*1000;
+  document.getElementById('preview').classList.add('on');
+  if(simRunning)return;simRunning=true;
+  let t=0;
+  (function frame(){
+    t+=0.012;
+    const w=pv.width,h=pv.height;
+    const g=px.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#0B0A1A');g.addColorStop(1,'#221B4A');
+    px.fillStyle=g;px.fillRect(0,0,w,h);
+    for(let i=0;i<26;i++){
+      const a=t+i*0.7+seed;
+      const x=w/2+Math.sin(a)*w*0.35*Math.sin(t*0.5+i);
+      const y=h/2+Math.cos(a*1.3)*h*0.32;
+      const r=40+30*Math.sin(a*2);
+      const grad=px.createRadialGradient(x,y,0,x,y,Math.abs(r)+20);
+      const hue=(i*37+t*40+seed)%360;
+      grad.addColorStop(0,`hsla(${hue},85%,65%,.16)`);
+      grad.addColorStop(1,'transparent');
+      px.fillStyle=grad;px.beginPath();px.arc(x,y,Math.abs(r)+20,0,7);px.fill();
+    }
+    px.fillStyle='rgba(237,234,255,.8)';
+    for(let i=0;i<40;i++){
+      const x=(Math.sin(i*12.9+seed)*.5+.5)*w,y=(Math.sin(i*78.2+seed)*.5+.5)*h;
+      px.fillRect(x,y,1.6,1.6);
+    }
+    if(!reduced&&simRunning)requestAnimationFrame(frame);
+  })();
+}
+document.getElementById('generate').onclick=()=>{
+  const prompt=document.getElementById('prompt').value.trim();
+  if(!prompt){setStatus('Type a description first — the universe needs instructions.');return;}
+  const prog=document.getElementById('prog');prog.classList.add('on');
+  const bar=prog.querySelector('i');bar.style.width='0';
+  document.getElementById('preview').classList.remove('on');
+  simRunning=false;
+  let p=0;setStatus(`Rendering with ${state.model}…`);
+  const steps=['Reading prompt…','Applying references…','Placing keyframes…','Painting frames…','Finishing preview…'];
+  const iv=setInterval(()=>{
+    p+=Math.random()*22;
+    bar.style.width=Math.min(100,p)+'%';
+    setStatus(steps[Math.min(steps.length-1,Math.floor(p/22))]);
+    if(p>=100){clearInterval(iv);setStatus(`Preview ready — ${state.model}, `+tot.textContent.replace('Total: ',''));runSim(true);}
+  },420);
+};
+
+/* ---------- Projects ---------- */
+document.getElementById('saveProj').onclick=()=>{
+  const prompt=document.getElementById('prompt').value.trim()||'Untitled video';
+  const proj={
+    title:prompt.slice(0,60),
+    model:state.model,
+    duration:tot.textContent.replace('Total: ',''),
+    keyframes:[...state.keyframes],
+    references:[...state.refs],
+    edits:[...state.edits],
+    imports:[...state.imports],
+    saved:new Date().toLocaleString('en-GB'),
+  };
+  state.projects.push(proj);
+  document.getElementById('projEmpty').style.display='none';
+  const el=document.createElement('div');el.className='proj';
+  el.innerHTML=`<b>${proj.title}</b><small>${proj.model} · ${proj.duration}<br>${proj.saved}</small>`;
+  document.getElementById('projList').appendChild(el);
+  setStatus('Saved to projects.');
+};
+document.getElementById('exportAll').onclick=()=>{
+  const blob=new Blob([JSON.stringify({site:'ApostolosBickerton.com',app:"Alpha's Video Generating Universe",projects:state.projects},null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='alphas-universe-projects.json';
+  a.click();
+};
+</script>
+</body>
+</html>
